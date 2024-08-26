@@ -1,0 +1,25 @@
+[
+  {
+    "id": 1,
+    "title": "Micrófono",
+    "description": "Micrófono profesional para grabación",
+    "code": "MIC001",
+    "price": 700,
+    "status": true,
+    "stock": 30,
+    "category": "Accesorios",
+    "thumbnails": [
+      "http://example.com/microfono1.jpg"
+    ]
+  },
+  {
+    "id": 5,
+    "title": "lnkn",
+    "price": "615"
+  },
+  {
+    "id": 6,
+    "title": "asdac",
+    "price": "1151"
+  }
+]

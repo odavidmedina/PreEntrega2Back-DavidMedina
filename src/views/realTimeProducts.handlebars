@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real Time Products</title>
+    <link rel="stylesheet" href="/styles.css">
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const socket = io();
+
+            socket.on('updateProducts', (products) => {
+                const productsList = document.getElementById('products-list');
+                productsList.innerHTML = '';
+                products.forEach(product => {
+                    productsList.innerHTML += `
+                        <li>
+                            ${product.title} - $${product.price} - ID: ${product.id}
+                            <button onclick="editProduct(${product.id})">Edit</button>
+                        </li>`;
+                });
+            });
+
+            socket.on('updateCarts', (carts) => {
+                const cartList = document.getElementById('cart-list');
+                cartList.innerHTML = '';
+                carts.forEach(cartProduct => {
+                    cartList.innerHTML += `
+                        <li>
+                            ${cartProduct.title} - $${cartProduct.price} - Quantity: ${cartProduct.quantity}
+                            <button onclick="removeProductFromCart(${cartProduct.id})">Remove</button>
+                        </li>`;
+                });
+            });
+
+            document.getElementById('new-product-form').addEventListener('submit', (e) => {
+                e.preventDefault();
+                const title = document.getElementById('title').value;
+                const price = document.getElementById('price').value;
+                socket.emit('newProduct', { title, price });
+                document.getElementById('new-product-form').reset();
+            });
+
+            document.getElementById('delete-product-form').addEventListener('submit', (e) => {
+                e.preventDefault();
+                const productId = document.getElementById('product-id').value;
+                socket.emit('deleteProduct', parseInt(productId, 10));
+                document.getElementById('delete-product-form').reset();
+            });
+
+            document.getElementById('add-to-cart-form').addEventListener('submit', (e) => {
+                e.preventDefault();
+                const productId = document.getElementById('product-id-cart').value;
+                socket.emit('addProductToCart', parseInt(productId, 10));
+                document.getElementById('add-to-cart-form').reset();
+            });
+
+            window.removeProductFromCart = (productId) => {
+                socket.emit('removeProductFromCart', productId);
+            };
+
+            window.editProduct = (productId) => {
+                const newPrice = prompt('Enter new price:');
+                if (newPrice) {
+                    socket.emit('editProduct', { id: productId, price: parseFloat(newPrice) });
+                }
+            };
+
+            socket.emit('getCarts');
+        });
+    </script>
+</head>
+<body>
+    <h1>Real Time Products</h1>
+    <ul id="products-list"></ul>
+
+    <form id="new-product-form">
+        <h2>Add New Product</h2>
+        <input type="text" id="title" placeholder="Title" required>
+        <input type="number" id="price" placeholder="Price" required>
+        <button type="submit">Add Product</button>
+    </form>
+
+    <form id="delete-product-form">
+        <h2>Delete Product</h2>
+        <input type="number" id="product-id" placeholder="Product ID" required>
+        <button type="submit">Delete Product</button>
+    </form>
+
+    <form id="add-to-cart-form">
+        <h2>Add Product to Cart</h2>
+        <input type="text" id="product-id-cart" placeholder="Product ID" required>
+        <button type="submit">Add to Cart</button>
+    </form>
+
+    <h2>Cart</h2>
+    <ul id="cart-list"></ul>
+</body>
+</html>
